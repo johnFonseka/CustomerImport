@@ -1,7 +1,7 @@
 {
     "name": "jf/customer-import",
     "description": "Swivel Group - Assessment - Magento 2 Developer (BE)",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "type": "magento2-module",
     "authors": [
         {
