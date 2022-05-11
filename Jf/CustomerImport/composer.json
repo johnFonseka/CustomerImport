@@ -1,0 +1,21 @@
+{
+    "name": "Jf/CustomerImport",
+    "description": "Swivel Group - Assessment - Magento 2 Developer (BE)",
+    "version": "0.0.1",
+    "type": "magento2-module",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "johnfonseka",
+            "email": "shan4max@gmail.com"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Jf\\CustomerImport\\": ""
+        }
+    }
+}
