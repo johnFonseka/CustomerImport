@@ -1,9 +1,9 @@
 {
-    "name": "johnfonseka/customer-import",
+    "name": "jf/customer-import",
     "description": "Swivel Group - Assessment - Magento 2 Developer (BE)",
     "type": "magento2-module",
     "version": "1.0.0",
-    "minimum-stability":"dev",
+    "license": "proprietary",
     "authors": [
         {
             "name": "John Fonseka",
@@ -19,4 +19,3 @@
         }
     }
 }
-

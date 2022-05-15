@@ -2,6 +2,8 @@
 /**
  * Class Data
  *
+ * Contains various utility functions
+ *
  * @package Jf\CustomerImport\Helper
  * @author John Fonseka <shan4max@gmail.com>
  * @date 2022-05-11 22:43
@@ -16,6 +18,16 @@ use Magento\Framework\Filesystem\Driver\File;
 
 class Data extends AbstractHelper
 {
+    /**
+     * @var File $fileDrive
+     */
+    private File $fileDrive;
+
+    /**
+     * @var Dir $dir
+     */
+    private Dir $dir;
+
     /**
      * @param Context $context
      * @param Dir $dir
@@ -41,7 +53,10 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Get the actual class implementation with proper class name.
+     * Get the actual class implementation by command name.
+     *
+     * Ideally we can extend this functionality to a 'Profile Handler' class. But for this solution, this is fine.
+     * This file is non-testable. As Magento 2 module is not setting up when we run just Data file on phpUnit:68
      *
      * @param string $profile
      * @return mixed|void
@@ -62,14 +77,42 @@ class Data extends AbstractHelper
     /**
      * Return a random text for customer password.
      *
+     * Magento ruleset strictly prohibiting the use of md5() even for string generation(?). So I have to write this down.
+     *
      * @param int $length
      * @return false|string
      */
     public function getRandomText(int $length = 10)
     {
-        $comb = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        $length = strlen($comb) < $length ? strlen($comb):$length;
-        $shuffle = str_shuffle($comb);
+        $charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        $length = strlen($charset) < $length ? strlen($charset):$length;
+        $shuffle = str_shuffle($charset);
         return substr($shuffle, 0, $length);
+    }
+
+    /**
+     * Wrapper for file drive file exists.
+     *
+     * Native file manipulations are discouraged. Therefore, changed it to Magento framework function.
+     *
+     * @param $file_path
+     * @return bool
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
+    public function fileExists($file_path)
+    {
+        return $this->fileDrive->isExists($file_path);
+    }
+
+    /**
+     * Return Magento 2 File Handler
+     *
+     * Returning file handler in case if profile extension developers need to use various file functions.
+     *
+     * @return File
+     */
+    public function getFilehandler()
+    {
+        return $this->fileDrive;
     }
 }

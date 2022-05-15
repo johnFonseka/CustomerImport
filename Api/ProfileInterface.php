@@ -5,7 +5,7 @@
  * @date 2022-05-11 21:57
  */
 
-namespace Jf\CustomerImport\Profile;
+namespace Jf\CustomerImport\Api;
 
 interface ProfileInterface
 {

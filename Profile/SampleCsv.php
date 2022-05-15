@@ -9,13 +9,20 @@
 
 namespace Jf\CustomerImport\Profile;
 
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Jf\CustomerImport\Profile\ProfileInterface;
+use Jf\CustomerImport\Api\ProfileInterface;
 use Jf\CustomerImport\Helper\Data;
 
 class SampleCsv implements ProfileInterface
 {
+    /**
+     * @var Data
+     */
     private Data $helper;
+
+    /**
+     * @var \Magento\Framework\Filesystem\Driver\File
+     */
+    private $fileHandler;
 
     /**
      * @param Data $helper
@@ -23,37 +30,43 @@ class SampleCsv implements ProfileInterface
     public function __construct(Data $helper)
     {
         $this->helper = $helper;
+        $this->fileHandler = $this->helper->getFilehandler();
     }
 
     /**
      * Implementation of get data for CSV files.
      *
-     * Purposely not checking file existence as it is already done in Console/CustomerImport
+     * This file will read CSV in to an array via M2 framework function, validate first row column names, and
+     * then format other lines into common output format.
      *
      * @param string $file
-     * @return array
+     * @return array|null
      * @throw FileNotFoundException
+     * @throws \Magento\Framework\Exception\FileSystemException
      */
     public function getData($file)
     {
-        $csv_content = array_map('str_getcsv', file($file)); // TODO:: use Magento functions
-        $first_row = true;
-        $data = [];
-        foreach ($csv_content as $row) {
-            if ($first_row) { // validate the first column
-                if (! ($row[0] == 'fname' && $row[1] == 'lname' && $row[2] == 'emailaddress')) {
-                    break;
+        if ($this->helper->fileExists($file)) {
+            $csv_content = array_map('str_getcsv', file($file)); // TODO:: use Magento functions
+            // $csv_content = $this->fileHandler->fileGetCsv($this->fileHandler->fileOpen($file, 'r'));
+            $first_row = true;
+            $data = [];
+            foreach ($csv_content as $row) {
+                if ($first_row) { // validate the first column
+                    if (!($row[0] == 'fname' && $row[1] == 'lname' && $row[2] == 'emailaddress')) {
+                        break;
+                    }
+                    $first_row = false;
+                } else {
+                    $data[] = [
+                        'fname' => $row[0],
+                        'lname' => $row[1],
+                        'emailaddress' => $row[2],
+                        'pass' => $this->helper->getRandomText()
+                    ];
                 }
-                $first_row = false;
-            } else {
-                $data[] = [
-                    'fname' => $row[0],
-                    'lname' => $row[1],
-                    'emailaddress' => $row[2],
-                    'pass' => $this->helper->getRandomText()
-                ];
             }
+            return $data;
         }
-        return $data;
     }
 }

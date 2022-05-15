@@ -9,10 +9,10 @@
 
 namespace Jf\CustomerImport\Model;
 
+use Jf\CustomerImport\Helper\Data;
+use Magento\Customer\Model\CustomerFactory;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Customer\Model\CustomerFactory;
-use Jf\CustomerImport\Helper\Data;
 
 class Customer extends AbstractModel
 {

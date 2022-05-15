@@ -2,6 +2,8 @@
 /**
  * Class CustomerImport
  *
+ * This class is the gateway class for the command line. It will take inputs from CLI, execute and return the output.
+ *
  * @package Jf\CustomerImport\Console
  * @author John Fonseka <shan4max@gmail.com>
  * @date 2022-05-11 15:18
@@ -9,14 +11,13 @@
 
 namespace Jf\CustomerImport\Console;
 
+use Jf\CustomerImport\Model\Customer;
+use Jf\CustomerImport\Api\ProfileInterface;
+use Jf\CustomerImport\Helper\Data;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Jf\CustomerImport\Model\Customer;
-use Jf\CustomerImport\Helper\Data;
-use Jf\CustomerImport\Profile\ProfileInterface;
-use Magento\Framework\Filesystem\Driver\File;
 
 class CustomerImport extends Command
 {
@@ -38,22 +39,13 @@ class CustomerImport extends Command
     private Data $helper;
 
     /**
-     * Since file_exists() is not recommended, had to use Magento File Driver
-     *
-     * @var File
-     */
-    private File $fileDriver;
-
-    /**
      * @param Customer $customer
      * @param Data $helper
-     * @param File $fileDriver
      */
-    public function __construct(Customer $customer, Data $helper, File $fileDriver)
+    public function __construct(Customer $customer, Data $helper)
     {
         $this->customer = $customer;
         $this->helper = $helper;
-        $this->fileDriver = $fileDriver;
         parent::__construct();
     }
 
@@ -90,23 +82,18 @@ class CustomerImport extends Command
             $file = $input->getOption(self::FILE);
 
             if ($profile && $file) {
-                if ($this->fileDriver->isExists($file)) {
-                    $data = [];
-                    $profileClass = $this->getProfile($profile);
-                    if ($profileClass) {
-                        $data = $profileClass->getData($file);
-                        if ($data) {
-                            $results = $this->customer->add($data);
-                            $output->writeln("Import completed. Success: <info>" . $results['success'] .
-                                "</info>, Total: <fg=red>" . $results['total'] . "</>");
-                        } else {
-                            $output->writeln("<error>Invalid or empty file. </error>");
-                        }
+                $profileClass = $this->getProfile($profile);
+                if ($profileClass) {
+                    $data = $profileClass->getData($file);
+                    if ($data) {
+                        $results = $this->customer->add($data);
+                        $output->writeln("Import completed. Success: <info>" . $results['success'] .
+                            "</info>, Total: <fg=red>" . $results['total'] . "</>");
                     } else {
-                        $output->writeln("<error>Profile does not exists. </error>");
+                        $output->writeln("<error>Invalid file or file path. </error>");
                     }
                 } else {
-                    $output->writeln("<error>File does not exists. </error>");
+                    $output->writeln("<error>Profile does not exists. </error>");
                 }
             } else {
                 $output->writeln("<error>Argument Error. </error>");
